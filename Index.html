@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Selamat Ulang Tahun — Template</title>
+  <meta name="description" content="Template website ucapan ulang tahun interaktif" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0f1724; /* dark */
+      --card:#0b1220;
+      --accent:#ffd166;
+      --muted:#94a3b8;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+      background: linear-gradient(180deg,#07101a 0%, #081323 60%);
+      color:#e6eef8;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      overflow-x:hidden;
+    }
+    .wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px}
+
+    .card{
+      width:100%;max-width:980px;background:linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.02));
+      border-radius:16px;padding:28px;position:relative;box-shadow:0 10px 30px rgba(2,6,23,0.6);
+      overflow:hidden;border:1px solid rgba(255,255,255,0.04);
+    }
+
+    .hero{display:grid;grid-template-columns:1fr 420px;gap:20px;align-items:center}
+    @media (max-width:880px){.hero{grid-template-columns:1fr;}.card{padding:18px}}
+
+    .left{padding:12px}
+    h1{margin:0 0 6px 0;font-size:38px;letter-spacing:-0.6px}
+    p.lead{color:var(--muted);margin:0 0 18px}
+
+    .countdown{display:flex;gap:12px;margin:18px 0}
+    .countdown .item{background:rgba(255,255,255,0.03);padding:12px 16px;border-radius:10px;min-width:84px;text-align:center}
+    .countdown .num{font-size:20px;font-weight:700}
+    .countdown .label{font-size:12px;color:var(--muted)}
+
+    .actions{display:flex;gap:10px;flex-wrap:wrap}
+    .btn{background:var(--accent);color:#07101a;padding:10px 14px;border-radius:10px;border:none;font-weight:600;cursor:pointer}
+    .btn.secondary{background:transparent;color:var(--accent);border:1px solid rgba(255,209,102,0.12)}
+
+    .right{display:flex;flex-direction:column;align-items:center;gap:12px;padding:12px}
+    .avatar{width:100%;max-width:360px;border-radius:12px;overflow:hidden;background:linear-gradient(135deg,#112031,#0b1830);display:flex;align-items:center;justify-content:center;padding:18px}
+    .avatar img{width:100%;height:auto;display:block}
+
+    .message-list{margin-top:8px;display:flex;gap:8px;flex-direction:column;width:100%}
+    .message{background:rgba(255,255,255,0.02);padding:10px;border-radius:8px;font-size:14px;color:var(--muted)}
+
+    /* Modal */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,0.6);display:flex;align-items:center;justify-content:center;z-index:40;opacity:0;pointer-events:none;transition:all .18s}
+    .modal-backdrop.show{opacity:1;pointer-events:auto}
+    .modal{background:linear-gradient(180deg,#07111a,#071726);padding:20px;border-radius:12px;max-width:640px;width:96%;box-shadow:0 10px 40px rgba(2,6,23,0.7);border:1px solid rgba(255,255,255,0.03)}
+    .modal h2{margin:0 0 8px}
+    .modal p{color:var(--muted)}
+
+    /* small footer */
+    footer{display:flex;justify-content:space-between;align-items:center;margin-top:14px;color:var(--muted);font-size:13px}
+
+    /* confetti canvas full */
+    canvas#confetti{position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:9}
+
+    /* subtle floating shapes */
+    .bubbles{position:absolute;right:-60px;top:-60px;opacity:0.12;filter:blur(24px);transform:rotate(12deg)}
+
+    .share{display:flex;gap:8px}
+
+    .small{font-size:13px}
+  </style>
+</head>
+<body>
+  <canvas id="confetti"></canvas>
+  <div class="wrap">
+    <div class="card">
+      <div class="hero">
+        <div class="left">
+          <h1 id="title">Selamat Ulang Tahun, [Nama] 🎉</h1>
+          <p class="lead">Semoga hari ini penuh kejutan manis. Buka pesan dari temanmu di bawah.</p>
+
+          <div class="countdown" id="countdown">
+            <div class="item"><div class="num" id="days">--</div><div class="label">Hari</div></div>
+            <div class="item"><div class="num" id="hours">--</div><div class="label">Jam</div></div>
+            <div class="item"><div class="num" id="mins">--</div><div class="label">Menit</div></div>
+            <div class="item"><div class="num" id="secs">--</div><div class="label">Detik</div></div>
+          </div>
+
+          <div class="actions">
+            <button class="btn" id="openCard">Buka Kartu</button>
+            <button class="btn secondary" id="toggleMusic">Putar Musik</button>
+            <button class="btn secondary" id="shareBtn">Bagikan</button>
+          </div>
+
+          <div style="margin-top:18px">
+            <small class="small">Tip: ganti teks, tanggal, atau musik di file HTML untuk kustomisasi.</small>
+          </div>
+        </div>
+
+        <div class="right">
+          <div class="avatar" id="avatar">
+            <!-- ganti src dengan foto penerima -->
+            <img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder" alt="Foto">
+          </div>
+
+          <div class="message-list" id="messages">
+            <div class="message">Happy birthday! Semoga panjang umur dan sehat selalu.</div>
+            <div class="message">Semoga semua impianmu tercapai.</div>
+            <div class="message">Jangan lupa traktir kalau kelar pandemi 😜</div>
+          </div>
+
+        </div>
+      </div>
+
+      <footer>
+        <div>Made with ❤️</div>
+        <div class="share">
+          <button class="btn secondary" id="copyLink">Salin Link</button>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Modal kartu -->
+  <div class="modal-backdrop" id="modal">
+    <div class="modal" role="dialog" aria-modal="true">
+      <h2>Kartu Spesial</h2>
+      <p id="cardText">Selamat ulang tahun! Semoga hari ini jadi awal dari semua hal baik yang akan datang.</p>
+      <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn" id="confettiBtn">Rayakan!</button>
+        <button class="btn secondary" id="closeModal">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audio (ganti src dengan link file audio atau base64) -->
+  <audio id="bgMusic" loop preload="none">
+    <source src="" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+
+  <script>
+    // ------------- Config (ganti sesuai kebutuhan) ----------------
+    const CONFIG = {
+      name: "Nama Penerima",
+      birthdayIso: "2025-10-20T00:00:00+07:00", // target tanggal UTC+7
+      initialMessages: [
+        "Happy birthday! Semoga panjang umur dan sehat selalu.",
+        "Semoga semua impianmu tercapai.",
+        "Jangan lupa traktir kalau kelar pandemi 😜"
+      ],
+      musicUrl: "", // letakkan URL mp3 di sini jika mau
+      avatarUrl: "https://images.unsplash.com/photo-1511367461989-f85a21fda167?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder"
+    };
+    // ----------------- Init UI ----------------------------------
+    document.getElementById('title').textContent = `Selamat Ulang Tahun, ${CONFIG.name} 🎉`;
+    document.getElementById('avatar').querySelector('img').src = CONFIG.avatarUrl;
+    const msgs = document.getElementById('messages'); msgs.innerHTML = '';
+    CONFIG.initialMessages.forEach(m => { const d = document.createElement('div'); d.className='message'; d.textContent = m; msgs.appendChild(d); });
+
+    // music setup
+    const audio = document.getElementById('bgMusic');
+    if(CONFIG.musicUrl){ audio.querySelector('source').src = CONFIG.musicUrl; audio.load(); }
+
+    // modal
+    const modal = document.getElementById('modal');
+    document.getElementById('openCard').addEventListener('click', ()=> modal.classList.add('show'));
+    document.getElementById('closeModal').addEventListener('click', ()=> modal.classList.remove('show'));
+    document.getElementById('confettiBtn').addEventListener('click', ()=>{ runConfettiBurst(200); });
+
+    // music control
+    const toggleMusic = document.getElementById('toggleMusic');
+    toggleMusic.addEventListener('click', ()=>{
+      if(!CONFIG.musicUrl){ alert('Tidak ada musik diset. Edit CONFIG.musicUrl di file ini.'); return; }
+      if(audio.paused){ audio.play(); toggleMusic.textContent='Jeda Musik'; }
+      else { audio.pause(); toggleMusic.textContent='Putar Musik'; }
+    });
+
+    // share
+    document.getElementById('shareBtn').addEventListener('click', async ()=>{
+      const shareData = {title: `Selamat Ulang Tahun ${CONFIG.name}`, text: `Buka kartu untuk ${CONFIG.name}`, url: location.href};
+      if(navigator.share){ try{ await navigator.share(shareData);}catch(e){ copyToClipboard(location.href); alert('Gagal share — link disalin ke clipboard.'); }} else { copyToClipboard(location.href); alert('Link disalin ke clipboard.'); }
+    });
+
+    document.getElementById('copyLink').addEventListener('click', ()=>{ copyToClipboard(location.href); alert('Link disalin.'); });
+    function copyToClipboard(text){ navigator.clipboard?.writeText(text).catch(()=>{}); }
+
+    // Countdown
+    const target = new Date(CONFIG.birthdayIso).getTime();
+    function tick(){
+      const now = Date.now();
+      let diff = target - now;
+      if(diff < 0) diff = 0;
+      const days = Math.floor(diff / (1000*60*60*24));
+      const hours = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
+      const mins = Math.floor((diff % (1000*60*60)) / (1000*60));
+      const secs = Math.floor((diff % (1000*60)) / 1000);
+      document.getElementById('days').textContent = days;
+      document.getElementById('hours').textContent = String(hours).padStart(2,'0');
+      document.getElementById('mins').textContent = String(mins).padStart(2,'0');
+      document.getElementById('secs').textContent = String(secs).padStart(2,'0');
+    }
+    tick(); setInterval(tick, 1000);
+
+    // ---------------- Confetti (simple particles) ----------------
+    const canvas = document.getElementById('confetti');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    function resize(){ canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    window.addEventListener('resize', resize); resize();
+
+    function rand(min,max){return Math.random()*(max-min)+min}
+    class P{constructor(){this.reset();}
+      reset(){this.x = rand(0,canvas.width); this.y = rand(-canvas.height,0); this.w = rand(6,12); this.h = this.w*0.6; this.vx = rand(-1.5,1.5); this.vy = rand(2,6); this.rot = rand(0,Math.PI*2); this.vr = rand(-0.12,0.12); this.color = ['#ffd166','#ef476f','#06d6a0','#118ab2'][Math.floor(rand(0,4))];}
+      step(){this.x += this.vx; this.y += this.vy; this.rot += this.vr; if(this.y > canvas.height+50) this.reset();}
+      draw(){ctx.save(); ctx.translate(this.x,this.y); ctx.rotate(this.rot); ctx.fillStyle=this.color; ctx.fillRect(-this.w/2,-this.h/2,this.w,this.h); ctx.restore();}
+    }
+    function spawn(n){ for(let i=0;i<n;i++) particles.push(new P()); }
+    function runConfettiBurst(n=120){ spawn(n); }
+    function loop(){ ctx.clearRect(0,0,canvas.width,canvas.height); for(let p of particles){ p.step(); p.draw(); } // keep array size bounded
+      if(particles.length>1000) particles=particles.slice(-1000);
+      requestAnimationFrame(loop);
+    }
+    loop();
+
+    // small auto celebration when countdown hits zero
+    setInterval(()=>{ if(Date.now() >= target){ runConfettiBurst(200); } }, 1500);
+
+    // ----------------- Small helpers ----------------
+    // Allow deep-linking to pre-filled data via URL params: ?name=...&date=...&music=...&avatar=...
+    (function applyUrlParams(){ const u = new URL(location.href); const p = u.searchParams; if(p.get('name')) document.getElementById('title').textContent = `Selamat Ulang Tahun, ${p.get('name')} 🎉`; if(p.get('date')){ const d = p.get('date'); const dd = new Date(d); if(!isNaN(dd)) { /* override */ } }
+      if(p.get('avatar')) document.getElementById('avatar').querySelector('img').src = p.get('avatar'); if(p.get('music')){ CONFIG.musicUrl = p.get('music'); audio.querySelector('source').src = CONFIG.musicUrl; audio.load(); }
+    })();
+
+  </script>
+</body>
+</html>
